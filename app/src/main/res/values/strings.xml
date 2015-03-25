@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">password</string>
+    <string name="generateBtn">生成</string>
+    <string name="TextView_plainText">明文</string>
+    <string name="TextView_secretKey">密钥</string>
+    <string name="action_settings">设置</string>
+</resources>
