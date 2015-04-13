@@ -21,7 +21,7 @@ public class PasswordDao {
     public void insert(Password password) {
         SQLiteDatabase db = mOpenHelper.getWritableDatabase();
         if (db.isOpen()) {
-            db.execSQL("insert into password(password, comment) values(?, ?);", new Object[]{password.getPassword(), password.getComment()});
+            db.execSQL("insert into password(password, salt, comment) values(?, ?, ?);", new Object[]{password.getPassword(), password.getSalt(), password.getComment()});
             db.close();
         }
     }
@@ -34,10 +34,10 @@ public class PasswordDao {
         }
     }
 
-    public void update(int id, String password, String comment) {
+    public void update(int id, String password, String salt, String comment) {
         SQLiteDatabase db = mOpenHelper.getWritableDatabase();
         if (db.isOpen()) {
-            db.execSQL("update password set password = ?, comment = ? where id = ?;", new Object[]{password, comment, id});
+            db.execSQL("update password set password = ?, salt = ?, comment = ? where id = ?;", new Object[]{password, salt, comment, id});
             db.close();
         }
     }
@@ -45,21 +45,20 @@ public class PasswordDao {
     public List<Password> queryAll() {
         SQLiteDatabase db = mOpenHelper.getReadableDatabase();
         if (db.isOpen()) {
-
-            Cursor cursor = db.rawQuery("select id, password, comment from password;", null);
-
+            Cursor cursor = db.rawQuery("select id, password, salt, comment from password;", null);
             if (cursor != null && cursor.getCount() > 0) {
                 List<Password> personList = new ArrayList<>();
                 int id;
                 String password;
+                String salt;
                 String comment;
                 while (cursor.moveToNext()) {
                     id = cursor.getInt(0);
                     password = cursor.getString(1);
-                    comment = cursor.getString(2);
-                    personList.add(new Password(id, password, comment));
+                    salt = cursor.getString(2);
+                    comment = cursor.getString(3);
+                    personList.add(new Password(id, password, salt, comment));
                 }
-
                 db.close();
                 return personList;
             }
@@ -71,13 +70,14 @@ public class PasswordDao {
     public Password queryItem(int id) {
         SQLiteDatabase db = mOpenHelper.getReadableDatabase();
         if (db.isOpen()) {
-            Cursor cursor = db.rawQuery("select id, password, comment from password where id = ?;", new String[]{id + ""});
+            Cursor cursor = db.rawQuery("select id, password, salt, comment from password where id = ?;", new String[]{id + ""});
             if (cursor != null && cursor.moveToFirst()) {
                 id = cursor.getInt(0);
                 String password = cursor.getString(1);
-                String comment = cursor.getString(2);
+                String salt = cursor.getString(2);
+                String comment = cursor.getString(3);
                 db.close();
-                return new Password(id, password, comment);
+                return new Password(id, password, salt, comment);
             }
             db.close();
         }

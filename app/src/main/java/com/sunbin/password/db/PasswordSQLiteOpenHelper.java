@@ -27,8 +27,7 @@ public class PasswordSQLiteOpenHelper extends SQLiteOpenHelper {
      */
     @Override
     public void onCreate(SQLiteDatabase db) {
-        db.execSQL("create table password(id integer primary key, password varchar(1024), comment varchar(24))");
-
+        db.execSQL("create table password(id integer primary key, password varchar(1024), salt varchar(1024), comment varchar(24))");
     }
 
     /**
@@ -41,6 +40,5 @@ public class PasswordSQLiteOpenHelper extends SQLiteOpenHelper {
      */
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-
     }
 }
