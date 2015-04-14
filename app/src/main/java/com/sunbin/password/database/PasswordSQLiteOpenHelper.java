@@ -1,4 +1,4 @@
-package com.sunbin.password.db;
+package com.sunbin.password.database;
 
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
@@ -17,7 +17,7 @@ public class PasswordSQLiteOpenHelper extends SQLiteOpenHelper {
      * @param context
      */
     public PasswordSQLiteOpenHelper(Context context) {
-        super(context, "password.db3", null, 1);
+        super(context, "sqlite.db3", null, 1);
     }
 
     /**
@@ -27,7 +27,7 @@ public class PasswordSQLiteOpenHelper extends SQLiteOpenHelper {
      */
     @Override
     public void onCreate(SQLiteDatabase db) {
-        db.execSQL("create table password(id integer primary key, password varchar(1024), salt varchar(1024), comment varchar(24))");
+        db.execSQL("CREATE TABLE [p] ([id] INTEGER PRIMARY KEY,[cipherText] VARCHAR(1024) NOT NULL,[salt] VARCHAR(1024) NOT NULL,[iv] VARCHAR(1024) NOT NULL,[remark] VARCHAR(24) NOT NULL);");
     }
 
     /**

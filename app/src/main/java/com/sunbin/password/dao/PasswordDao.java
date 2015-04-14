@@ -4,11 +4,17 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 
-import com.sunbin.password.db.PasswordSQLiteOpenHelper;
+import com.sunbin.password.database.PasswordSQLiteOpenHelper;
 import com.sunbin.password.entity.Password;
 
 import java.util.ArrayList;
 import java.util.List;
+
+/**
+ * Created by dilidilidi on 2015/3/22.
+ * Email:93146139@qq.com
+ * 密码记录DAO层
+ */
 
 public class PasswordDao {
 
@@ -21,7 +27,7 @@ public class PasswordDao {
     public void insert(Password password) {
         SQLiteDatabase db = mOpenHelper.getWritableDatabase();
         if (db.isOpen()) {
-            db.execSQL("insert into password(password, salt, comment) values(?, ?, ?);", new Object[]{password.getPassword(), password.getSalt(), password.getComment()});
+            db.execSQL("insert into p(cipherText, salt, iv, remark) values(?, ?, ?, ?);", new Object[]{password.getCipherText(), password.getSalt(), password.getIv(), password.getRemark()});
             db.close();
         }
     }
@@ -29,15 +35,15 @@ public class PasswordDao {
     public void delete(int id) {
         SQLiteDatabase db = mOpenHelper.getWritableDatabase();
         if (db.isOpen()) {
-            db.execSQL("delete from password where id = ?;", new Integer[]{id});
+            db.execSQL("delete from p where id = ?;", new Integer[]{id});
             db.close();
         }
     }
 
-    public void update(int id, String password, String salt, String comment) {
+    public void update(Password p) {
         SQLiteDatabase db = mOpenHelper.getWritableDatabase();
         if (db.isOpen()) {
-            db.execSQL("update password set password = ?, salt = ?, comment = ? where id = ?;", new Object[]{password, salt, comment, id});
+            db.execSQL("update p set cipherText = ?, salt = ?, iv = ?, remark = ? where id = ?;", new Object[]{p.getCipherText(), p.getSalt(), p.getIv(), p.getRemark(), p.getId()});
             db.close();
         }
     }
@@ -45,22 +51,24 @@ public class PasswordDao {
     public List<Password> queryAll() {
         SQLiteDatabase db = mOpenHelper.getReadableDatabase();
         if (db.isOpen()) {
-            Cursor cursor = db.rawQuery("select id, password, salt, comment from password;", null);
+            Cursor cursor = db.rawQuery("select * from p;", null);
             if (cursor != null && cursor.getCount() > 0) {
-                List<Password> personList = new ArrayList<>();
+                List<Password> passwordList = new ArrayList<>();
                 int id;
-                String password;
+                String cipherText;
                 String salt;
-                String comment;
+                String iv;
+                String remark;
                 while (cursor.moveToNext()) {
                     id = cursor.getInt(0);
-                    password = cursor.getString(1);
+                    cipherText = cursor.getString(1);
                     salt = cursor.getString(2);
-                    comment = cursor.getString(3);
-                    personList.add(new Password(id, password, salt, comment));
+                    iv = cursor.getString(3);
+                    remark = cursor.getString(4);
+                    passwordList.add(new Password(id, cipherText, salt, iv, remark));
                 }
                 db.close();
-                return personList;
+                return passwordList;
             }
             db.close();
         }
@@ -70,14 +78,33 @@ public class PasswordDao {
     public Password queryItem(int id) {
         SQLiteDatabase db = mOpenHelper.getReadableDatabase();
         if (db.isOpen()) {
-            Cursor cursor = db.rawQuery("select id, password, salt, comment from password where id = ?;", new String[]{id + ""});
+            Cursor cursor = db.rawQuery("select * from p where id = ?;", new String[]{id + ""});
             if (cursor != null && cursor.moveToFirst()) {
                 id = cursor.getInt(0);
-                String password = cursor.getString(1);
+                String cipherText = cursor.getString(1);
                 String salt = cursor.getString(2);
-                String comment = cursor.getString(3);
+                String iv = cursor.getString(3);
+                String remark = cursor.getString(4);
                 db.close();
-                return new Password(id, password, salt, comment);
+                return new Password(id, cipherText, salt, iv, remark);
+            }
+            db.close();
+        }
+        return null;
+    }
+
+    public Password queryLastItem() {
+        SQLiteDatabase db = mOpenHelper.getReadableDatabase();
+        if (db.isOpen()) {
+            Cursor cursor = db.rawQuery("select * from p order by id desc limit 0 , 1;", null);
+            if (cursor != null && cursor.moveToFirst()) {
+                int id = cursor.getInt(0);
+                String cipherText = cursor.getString(1);
+                String salt = cursor.getString(2);
+                String iv = cursor.getString(3);
+                String remark = cursor.getString(4);
+                db.close();
+                return new Password(id, cipherText, salt, iv, remark);
             }
             db.close();
         }
